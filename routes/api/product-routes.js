@@ -17,40 +17,68 @@ router.get('/', async (req, res) => {
 router.get('/:id', async(req, res) => {
   // this will get a single product and it's associated id
   try {
-    const productData = await Product.findByPk(req.params.id, {
-      // this will include the category and tag
-      include: [{ model: Category }, { model: Tag }],
-    });
+     const productData = await Product.findByPk(req.params.id, {
+            include: [{model: Category}, {model: Tag}]
+        });
+        console.log(productData)
     if (!productData) {
       res.status(404).json({ message: 'Unable to find product with that id!' });
       return;
     }
-    res.status(200).json(ProductData);
+    res.status(200).json(productData);
   } catch (err) {
     res.status(500).json(err);
   }
 });
 
 // this will create a new product
-router.post('/', (req, res) => {
-  Product.create(req.body)
-    .then((product) => {
-      if (req.body.tagIds.length) {
-        const productTagIds = req.body.tagIds.map((tag_id) => {
-          return {
-            product_id: product.id,
-            tag_id,
-          };
-        });
-        return ProductTag.bulkCreate(productTagIds);
-      }
-      // if there are no product tags it will just respond else it will return and error
-      res.status(200).json(product);
-    })
-    .then((productTagIds) => res.status(200).json(productTagIds))
-    .catch((err) => {
-      res.status(400).json(err);
-    });
+// router.post('/', (req, res) => {
+//   Product.create(req.body)
+//     .then((product) => {
+//       if (req.body.tagIds.length) {
+//         const productTagIds = req.body.tagIds.map((tag_id) => {
+//           return {
+//             product_id: product.id,
+//             tag_id,
+//           };
+//         });
+//         return ProductTag.bulkCreate(productTagIds);
+//       }
+//       // if there are no product tags it will just respond else it will return and error
+//       res.status(200).json(product);
+//     })
+//     .then((productTagIds) => res.status(200).json(productTagIds))
+//     .catch((err) => {
+//       res.status(400).json(err);
+//     });
+// });
+
+router.post('/', async (req, res) => {
+  try {
+     let productTagIds = await Product
+      .create(req.body)
+      .then((product) => {
+        if (req.body.tagIds.length) {
+          const productTagIds = req.body.tagIds.map((tag_id) => {
+            return {
+              product_id: product.id,
+              tag_id,
+            };
+          });
+          return ProductTag.bulkCreate(productTagIds);
+        }
+
+        return [];
+      })
+
+    if(productTagIds.length === 0) {
+        // if there are no product tags it will just respond else it will return and error
+        res.status(200).json(product);
+    }
+    res.status(200).json(productTagIds);
+  } catch(err) {
+    res.status(400).json(err);
+  };
 });
 
 // product update
