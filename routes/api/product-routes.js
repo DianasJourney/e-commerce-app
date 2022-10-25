@@ -31,28 +31,6 @@ router.get('/:id', async(req, res) => {
   }
 });
 
-// this will create a new product
-// router.post('/', (req, res) => {
-//   Product.create(req.body)
-//     .then((product) => {
-//       if (req.body.tagIds.length) {
-//         const productTagIds = req.body.tagIds.map((tag_id) => {
-//           return {
-//             product_id: product.id,
-//             tag_id,
-//           };
-//         });
-//         return ProductTag.bulkCreate(productTagIds);
-//       }
-//       // if there are no product tags it will just respond else it will return and error
-//       res.status(200).json(product);
-//     })
-//     .then((productTagIds) => res.status(200).json(productTagIds))
-//     .catch((err) => {
-//       res.status(400).json(err);
-//     });
-// });
-
 router.post('/', async (req, res) => {
   try {
      let productTagIds = await Product
